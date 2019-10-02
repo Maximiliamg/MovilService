@@ -79,6 +79,7 @@ public class TCPServiceManager extends Thread implements TCPServiceManagerCaller
                 //clients.add( new ClientSocketManager( 
                 //      serverSocket.accept(),this));
                 Socket receivedSocket = serverSocket.accept();
+                System.out.println(receivedSocket);
                 ClientSocketManager freeClientSocketManager
                         = getNotBusyClientSocketManager();
                 if (freeClientSocketManager != null) {
@@ -99,7 +100,7 @@ public class TCPServiceManager extends Thread implements TCPServiceManagerCaller
 
     @Override
     public void MessageReceiveFromClient(Socket clientSocket, byte[] data) {
-        System.out.println("R: " + new String(data));
+        System.out.println("Recieved Message: " + new String(data));
 //        SendMessageToAllClients(":"+clientSocket.getInetAddress()+
 //                                ":"+clientSocket.getInetAddress().getHostName()+
 //                                ":"+clientSocket.getPort()

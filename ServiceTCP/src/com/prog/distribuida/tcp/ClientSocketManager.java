@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
@@ -110,6 +111,7 @@ public class ClientSocketManager extends Thread {
                 if (initializeStreams()) {
                     String newMessage = null;
                     while ((newMessage = this.reader.readLine()) != null) {
+                        System.out.println(newMessage);
                         caller.MessageReceiveFromClient(clientSocket, newMessage.getBytes());
                     }
                 }
@@ -131,11 +133,15 @@ public class ClientSocketManager extends Thread {
         }
     }
 
-    private void clearLastSocket() {
-        caller.MessageReceiveFromClient(clientSocket, "El que tenia aqui se desconectó".getBytes());
+    public void clearLastSocket() {
+//        caller.MessageReceiveFromClient(clientSocket, "El que tenia aqui se desconectó".getBytes());
         try{
             System.out.println("[SOCKET_MANAGER] HTTP REQUEST BEING SENT");
-            httpRequest("" + clientSocket.getInetAddress());
+            System.out.println("Client Socket Inet: "+ clientSocket.getInetAddress());
+            if (Pattern.matches("/[0-9.]+", clientSocket.getInetAddress().toString())) {
+                System.out.println(clientSocket.getInetAddress().toString());
+                httpRequest("" + clientSocket.getInetAddress().toString());
+            }
         } catch (Exception ex){
             System.out.println("[SOCKET_MANAGER] Message could not be sent to server");
         }
@@ -163,15 +169,16 @@ public class ClientSocketManager extends Thread {
 
     public void httpRequest(String ip) throws IOException {
         String USER_AGENT = "Mozilla/5.0";
-        String url = "http://192.168.0.10:8080/MovilAPI/api/users/toggleStatus/"+ip;
-
+        String url = "http://192.168.0.18:8080/MovilAPI/api/users/toggleStatus"+ip;
+        System.out.println(url);
+        
         org.apache.http.client.HttpClient client = HttpClients.createDefault();
         HttpPut request = new HttpPut(url);
 
         // add request header
         request.addHeader(
                 "User-Agent", USER_AGENT);
-        request.setEntity( new StringEntity( "{data: offline}", ContentType.APPLICATION_JSON ) );
+        request.setEntity( new StringEntity( "{\"data\": \"offline\"}", ContentType.APPLICATION_JSON ) );
 
         HttpResponse response = client.execute(request);
 
